@@ -19,3 +19,5 @@ cloudflared/cert.pem
 coverage
 .playwright-mcp/
 .claude/settings.local.json
+tsconfig.tsbuildinfo
+*.png
