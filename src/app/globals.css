@@ -1,0 +1,226 @@
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-playfair), Georgia, serif;
+
+  /* Kiraz Tasarım color palette — sıcak krem/pembe/altın tonları */
+  --color-cream-50: #fdfaf6;
+  --color-cream-100: #faf3ea;
+  --color-cream-200: #f4e7d4;
+  --color-cream-300: #ecd6b8;
+  --color-cream-400: #d9b890;
+  --color-cream-500: #c39a6e;
+  --color-cream-600: #a07a52;
+  --color-cream-700: #7a5c3d;
+
+  --color-rose-50: #fdf3f4;
+  --color-rose-100: #fbe5e8;
+  --color-rose-200: #f5c6cd;
+  --color-rose-300: #eb9ea8;
+  --color-rose-400: #dc7384;
+  --color-rose-500: #c95265;
+  --color-rose-600: #a93b4d;
+  --color-rose-700: #7d2c39;
+
+  --color-ink-50: #f7f5f3;
+  --color-ink-100: #e8e3dd;
+  --color-ink-200: #c8bfb4;
+  --color-ink-300: #948775;
+  --color-ink-500: #4a3f31;
+  --color-ink-700: #2b2419;
+  --color-ink-900: #161108;
+
+  --color-gold-400: #d4ae6a;
+  --color-gold-500: #b8924f;
+}
+
+:root {
+  --bg: var(--color-cream-50);
+  --fg: var(--color-ink-900);
+  --muted: var(--color-cream-100);
+  --muted-fg: var(--color-ink-500);
+  --border: var(--color-cream-200);
+  --primary: var(--color-rose-500);
+  --primary-fg: #ffffff;
+  --accent: var(--color-gold-500);
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    /* Fixed Kiraz brand defaults — theme customisation must not bleed into admin. */
+    background-color: var(--color-cream-50);
+    color: var(--color-ink-900);
+    font-family: var(--font-sans);
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Public site wrapper: override with theme colours via .kt-public CSS vars */
+  .kt-public {
+    background-color: var(--kt-bg, var(--color-cream-50));
+    color: var(--kt-text, var(--color-ink-900));
+  }
+
+  /* ── Public headings use display font vars ────────────────────────────── */
+  .kt-public h1,
+  .kt-public h2,
+  .kt-public h3,
+  .kt-public h4,
+  .kt-public .font-display {
+    font-weight: var(--kt-display-weight, 400);
+    font-style: var(--kt-display-style, normal);
+    text-transform: var(--kt-display-transform, none);
+    letter-spacing: var(--kt-display-spacing, 0);
+  }
+
+  /* ── Product card container ───────────────────────────────────────────── */
+  .kt-public .product-card {
+    border-radius: var(--kt-card-radius, 8px);
+    box-shadow: var(--kt-card-shadow, none);
+    text-align: var(--kt-card-align, left);
+    border-width: var(--kt-card-border-width, 0px);
+    border-style: solid;
+    border-color: var(--kt-border, #e2ddd6);
+  }
+
+  /* Card image placeholder */
+  .kt-public .card-img-placeholder {
+    background-color: var(--kt-card-img-bg, #f3f0eb);
+  }
+
+  /* Product name in cards */
+  .kt-public .product-card-name {
+    font-style: var(--kt-card-name-style, normal);
+    text-transform: var(--kt-card-name-transform, none);
+  }
+
+  /* Category / brand label in cards */
+  .kt-public .product-card-label {
+    text-transform: var(--kt-card-label-transform, none);
+  }
+
+  /* ── Hover effects ────────────────────────────────────────────────────── */
+  .kt-public .product-card,
+  .kt-public .card-hoverable {
+    transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+  }
+  .kt-public .product-card:hover,
+  .kt-public .card-hoverable:hover {
+    transform: var(--kt-hover-transform, none);
+    opacity: var(--kt-hover-opacity, 1);
+  }
+
+  /* ── Button styling (kt-btn class added in components) ───────────────── */
+  .kt-public .kt-btn {
+    text-transform: var(--kt-btn-transform, none);
+    letter-spacing: var(--kt-btn-spacing, 0);
+    font-weight: var(--kt-btn-weight, 500);
+    color: var(--kt-btn-text, #fff);
+    border-width: var(--kt-btn-border-width, 0px);
+  }
+
+  /* Broad button color override — for themes with light-colored primary */
+  .kt-public .bg-rose-500,
+  .kt-public .bg-rose-600 {
+    color: var(--kt-btn-text, #fff);
+  }
+
+  /* ── Sale badge radius ────────────────────────────────────────────────── */
+  .kt-public .sale-badge {
+    border-radius: var(--kt-badge-radius, 4px);
+  }
+
+  /* ── Header border ────────────────────────────────────────────────────── */
+  .kt-public header.kt-header-bordered {
+    border-bottom-width: var(--kt-header-border-width, 1px);
+    border-bottom-style: solid;
+    border-bottom-color: var(--kt-border, #e2ddd6);
+  }
+
+  /* ── Theme-aware section backgrounds ─────────────────────────────────── */
+  .kt-public section {
+    background-color: var(--kt-bg);
+    color: var(--kt-text);
+  }
+
+  /* ── Section border styles (sectionBorderStyle) ──────────────────────── */
+  .kt-public .kt-section-border-line > * + * {
+    border-top: 1px solid var(--kt-border);
+  }
+  .kt-public .kt-section-border-thick > * + * {
+    border-top: 4px solid var(--kt-border);
+  }
+
+  /* ── Product card name font family ───────────────────────────────────── */
+  .kt-public .product-card-name {
+    font-family: var(--kt-card-name-font-family, var(--kt-font-body));
+  }
+
+  /* ── Button font family ──────────────────────────────────────────────── */
+  .kt-public .kt-btn {
+    font-family: var(--kt-btn-font-family, var(--kt-font-body));
+  }
+
+  /* ── Image placeholder with diagonal stripe texture ─────────────────── */
+  .kt-public .kt-img-placeholder {
+    background-color: var(--kt-card-img-bg, #f3f0eb);
+    background-image: repeating-linear-gradient(
+      45deg,
+      color-mix(in srgb, var(--kt-border, #e2ddd6) 50%, transparent) 0px,
+      color-mix(in srgb, var(--kt-border, #e2ddd6) 50%, transparent) 1px,
+      transparent 1px,
+      transparent 12px
+    );
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  ::selection {
+    background-color: var(--color-rose-200);
+    color: var(--color-rose-700);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+}
+
+@keyframes kt-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* Rich text content (Tiptap output) */
+.prose-cms {
+  line-height: 1.7;
+}
+.prose-cms h2 { font-size: 1.5rem; margin: 1.5rem 0 0.75rem; }
+.prose-cms h3 { font-size: 1.25rem; margin: 1.25rem 0 0.5rem; }
+.prose-cms p { margin: 0.75rem 0; }
+.prose-cms ul, .prose-cms ol { margin: 0.75rem 0; padding-left: 1.5rem; }
+.prose-cms ul { list-style: disc; }
+.prose-cms ol { list-style: decimal; }
+.prose-cms a { color: var(--color-rose-600); text-decoration: underline; }
+.prose-cms strong { font-weight: 600; }
+.prose-cms img { border-radius: var(--radius); margin: 1rem 0; }

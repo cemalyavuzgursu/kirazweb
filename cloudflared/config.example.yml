@@ -1,0 +1,24 @@
+# Cloudflare Tunnel yapılandırması — kurulum sonrası bu dosyayı `config.yml` olarak kopyalayın
+# ve `<tunnel-id>` değerini değiştirin.
+#
+# Adımlar:
+#   1) cloudflared tunnel login
+#   2) cloudflared tunnel create kiraz-prod
+#   3) Üretilen <tunnel-id>.json dosyasını cloudflared/ klasörüne koyun
+#   4) Cloudflare DNS'te şu CNAME'leri ekleyin:
+#        @     -> <tunnel-id>.cfargotunnel.com
+#        www   -> <tunnel-id>.cfargotunnel.com
+#        admin -> <tunnel-id>.cfargotunnel.com
+#   5) docker compose --profile tunnel up -d cloudflared
+
+tunnel: <tunnel-id>
+credentials-file: /etc/cloudflared/<tunnel-id>.json
+
+ingress:
+  - hostname: kiraztasarim.com
+    service: http://web:3000
+  - hostname: www.kiraztasarim.com
+    service: http://web:3000
+  - hostname: admin.kiraztasarim.com
+    service: http://web:3000
+  - service: http_status:404

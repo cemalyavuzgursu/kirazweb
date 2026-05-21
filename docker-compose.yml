@@ -1,0 +1,81 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-kiraz}
+      POSTGRES_USER: ${POSTGRES_USER:-kiraz}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kiraz_dev_password}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-kiraz} -d ${POSTGRES_DB:-kiraz}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-kiraz}:${POSTGRES_PASSWORD:-kiraz_dev_password}@db:5432/${POSTGRES_DB:-kiraz}?schema=public
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+      NEXT_PUBLIC_SITE_HOST: ${NEXT_PUBLIC_SITE_HOST:-localhost}
+      NEXT_PUBLIC_ADMIN_HOST: ${NEXT_PUBLIC_ADMIN_HOST:-admin.localhost}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      EMAIL_FROM: ${EMAIL_FROM:-Kiraz Tasarım <siparis@kiraztasarim.com>}
+      EMAIL_REPLY_TO: ${EMAIL_REPLY_TO:-}
+      IYZICO_BASE_URL: ${IYZICO_BASE_URL:-https://sandbox-api.iyzipay.com}
+      IYZICO_API_KEY: ${IYZICO_API_KEY:-}
+      IYZICO_SECRET: ${IYZICO_SECRET:-}
+    volumes:
+      - ./public/uploads:/app/public/uploads
+    ports:
+      - "3000:3000"
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    profiles: ["tunnel"]
+    command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./cloudflared:/etc/cloudflared:ro
+    depends_on:
+      - web
+
+  backup:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    profiles: ["backup"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGUSER: ${POSTGRES_USER:-kiraz}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-kiraz_dev_password}
+      PGDATABASE: ${POSTGRES_DB:-kiraz}
+    volumes:
+      - ./backups:/backups
+      - ./public/uploads:/uploads:ro
+      - ./scripts/backup.sh:/backup.sh:ro
+    entrypoint: ["sh", "-c"]
+    command: |
+      "apk add --no-cache tar gzip coreutils && \
+       while true; do \
+         /backup.sh && \
+         find /backups -name '*.sql.gz' -mtime +14 -delete; \
+         find /backups -name '*.tar.gz' -mtime +14 -delete; \
+         sleep 86400; \
+       done"
+
+volumes:
+  pgdata:
