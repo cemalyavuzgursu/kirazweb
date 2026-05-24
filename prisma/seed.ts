@@ -15,6 +15,13 @@ const EDITOR_PERMISSIONS = [
 ];
 
 async function main() {
+  // Already seeded — skip to avoid overwriting user data on every restart
+  const existing = await prisma.user.findFirst({ where: { role: { name: "ADMIN" } } });
+  if (existing) {
+    console.log("✓ Veritabanı zaten seed edilmiş, atlanıyor.");
+    return;
+  }
+
   console.log("Seed başlıyor...");
 
   // --- System roles ---
