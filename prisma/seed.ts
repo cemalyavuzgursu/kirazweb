@@ -1,6 +1,18 @@
 import { PrismaClient, BannerPosition, MenuLocation } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { ALL_PERMISSIONS } from "../src/lib/permissions";
+
+const ALL_PERMISSIONS = [
+  "products:read","products:write","products:delete",
+  "orders:read","orders:write",
+  "customers:read",
+  "content:write","content:delete",
+  "media:upload",
+  "coupons:manage",
+  "users:manage",
+  "roles:manage",
+  "settings:manage",
+  "seo:manage",
+];
 
 const prisma = new PrismaClient();
 
