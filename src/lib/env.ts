@@ -15,12 +15,20 @@ const envSchema = z.object({
   IYZICO_SECRET: z.string().optional().default(""),
 });
 
-// SKIP_ENV_VALIDATION=1 is set during Docker build where runtime vars aren't available.
-// Validation runs again at container startup with all vars present.
+// SKIP_ENV_VALIDATION=1 is set in the Dockerfile builder stage where runtime
+// vars are unavailable. Required fields get placeholder defaults so Next.js
+// can generate static pages (robots.txt, sitemap) without crashing.
+// Full validation runs at container startup when all vars are present.
 const skip = process.env.SKIP_ENV_VALIDATION === "1";
 
 const parsed = skip
-  ? envSchema.partial().safeParse(process.env)
+  ? envSchema
+      .extend({
+        DATABASE_URL: z.string().default("postgresql://build-placeholder"),
+        NEXTAUTH_SECRET: z.string().default("build-placeholder-secret-32chars!!"),
+        ENCRYPTION_KEY: z.string().default("0".repeat(64)),
+      })
+      .safeParse(process.env)
   : envSchema.safeParse(process.env);
 
 if (!parsed.success) {
