@@ -3,8 +3,8 @@ builder = "NIXPACKS"
 buildCommand = "npx prisma generate && npx prisma migrate deploy && npm run build"
 
 [deploy]
-startCommand = "npx prisma migrate deploy && npm run seed && npm run start"
+startCommand = "npx prisma migrate deploy && { npm run seed & npm run start; }"
 healthcheckPath = "/api/health"
-healthcheckTimeout = 30
+healthcheckTimeout = 120
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
