@@ -15,11 +15,17 @@ const envSchema = z.object({
   IYZICO_SECRET: z.string().optional().default(""),
 });
 
-const parsed = envSchema.safeParse(process.env);
+// SKIP_ENV_VALIDATION=1 is set during Docker build where runtime vars aren't available.
+// Validation runs again at container startup with all vars present.
+const skip = process.env.SKIP_ENV_VALIDATION === "1";
+
+const parsed = skip
+  ? envSchema.partial().safeParse(process.env)
+  : envSchema.safeParse(process.env);
 
 if (!parsed.success) {
   console.error("❌ Geçersiz ortam değişkenleri:", parsed.error.flatten().fieldErrors);
   throw new Error("Ortam değişkenleri doğrulanamadı.");
 }
 
-export const env = parsed.data;
+export const env = parsed.data as z.infer<typeof envSchema>;

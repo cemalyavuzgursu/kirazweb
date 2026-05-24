@@ -12,6 +12,9 @@ FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
+# Env vars are not available at Docker build time; skip validation here,
+# it runs again at container startup when all vars are present.
+ENV SKIP_ENV_VALIDATION=1
 RUN npx prisma generate
 RUN npm run build
 
