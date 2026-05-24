@@ -6,11 +6,16 @@ import { formatDate } from "@/lib/utils";
 import { buildMetadata } from "@/lib/seo";
 
 export async function generateStaticParams() {
-  const posts = await prisma.blogPost.findMany({
-    where: { isPublished: true },
-    select: { slug: true },
-  });
-  return posts.map((p) => ({ slug: p.slug }));
+  try {
+    const posts = await prisma.blogPost.findMany({
+      where: { isPublished: true },
+      select: { slug: true },
+    });
+    return posts.map((p) => ({ slug: p.slug }));
+  } catch {
+    // DB not available at build time; pages are generated on-demand at runtime.
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
