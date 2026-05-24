@@ -25,10 +25,9 @@ export default async function AdminLoginPage({
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    // Build redirect URL using the actual request host (admin.localhost:3000)
-    // so Next Auth doesn't fall back to NEXTAUTH_URL (localhost:3000)
+    // Build an absolute redirectTo so NextAuth doesn't strip the path
     const h = await headers();
-    const host = h.get("host") ?? "admin.localhost:3000";
+    const host = h.get("host") ?? "localhost:3000";
     const proto = process.env.NODE_ENV === "production" ? "https" : "http";
     const redirectTo = `${proto}://${host}/admin`;
 

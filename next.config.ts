@@ -21,7 +21,7 @@ const config: NextConfig = {
       "img-src 'self' data: blob: *.kiraztasarim.com images.unsplash.com https://www.google-analytics.com",
       "font-src 'self' https://fonts.gstatic.com",
       "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com",
-      // Preview iframe is same-origin (middleware routes ?preview=1 to public pages on admin host)
+      // Theme editor preview iframe loads public pages on the same origin (/admin + /?preview=1)
       "frame-src 'self'",
       "object-src 'none'",
       "base-uri 'self'",
