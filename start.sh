@@ -1,5 +1,5 @@
 #!/bin/sh
 set -e
 npx prisma migrate deploy
-npm run seed &
+npx prisma db seed &
 npm run start
