@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { X, ShoppingBag, User, Search, BookOpen } from "lucide-react";
 
@@ -19,6 +20,12 @@ interface MobileNavProps {
 
 export function MobileNav({ siteName, menuItems, isOpen, onClose }: MobileNavProps) {
   const drawerRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  // Portal target is only available on the client
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Close on Escape key
   useEffect(() => {
@@ -73,7 +80,9 @@ export function MobileNav({ siteName, menuItems, isOpen, onClose }: MobileNavPro
     };
   }, [isOpen]);
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <>
       {/* Backdrop */}
       <div
@@ -168,6 +177,7 @@ export function MobileNav({ siteName, menuItems, isOpen, onClose }: MobileNavPro
           </div>
         </nav>
       </div>
-    </>
+    </>,
+    document.body,
   );
 }

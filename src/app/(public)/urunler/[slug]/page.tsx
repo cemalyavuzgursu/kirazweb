@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ChevronRight, MessageCircle } from "lucide-react";
 import { prisma } from "@/lib/db";
@@ -8,6 +7,7 @@ import { buildMetadata, breadcrumbJsonLd, productJsonLd, JsonLd } from "@/lib/se
 import { env } from "@/lib/env";
 import { ProductCard } from "@/components/public/product-card";
 import { AddToCartButton } from "@/components/public/add-to-cart-button";
+import { ProductGallery } from "@/components/public/product-gallery";
 import { RichText } from "@/components/public/rich-text";
 import { getProductPageSettings } from "@/server/actions/theme";
 import { getDraftData } from "@/server/actions/theme";
@@ -161,37 +161,11 @@ export default async function ProductDetailPage({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           {/* Gallery */}
-          <div>
-            <div className="relative aspect-square rounded-lg overflow-hidden mb-3 kt-img-placeholder" style={{ borderRadius: "var(--kt-card-radius, 8px)" }}>
-              {product.images[0] ? (
-                <Image
-                  src={product.images[0].url}
-                  alt={product.name}
-                  fill
-                  priority
-                  sizes="(min-width:768px) 50vw, 100vw"
-                  className="object-cover"
-                />
-              ) : null}
-            </div>
-            {product.images.length > 1 && pageSettings.galleryLayout === "thumbnails" ? (
-              <div className="grid grid-cols-5 gap-2">
-                {product.images.map((img) => (
-                  <div key={img.id} className="relative aspect-square rounded overflow-hidden" style={{ backgroundColor: "var(--kt-card-img-bg)" }}>
-                    <Image src={img.url} alt="" fill sizes="100px" className="object-cover" />
-                  </div>
-                ))}
-              </div>
-            ) : product.images.length > 1 && pageSettings.galleryLayout === "stacked" ? (
-              <div className="flex flex-col gap-3 mt-3">
-                {product.images.slice(1).map((img) => (
-                  <div key={img.id} className="relative aspect-square rounded-lg overflow-hidden" style={{ backgroundColor: "var(--kt-card-img-bg)" }}>
-                    <Image src={img.url} alt="" fill sizes="(min-width:768px) 50vw, 100vw" className="object-cover" />
-                  </div>
-                ))}
-              </div>
-            ) : null}
-          </div>
+          <ProductGallery
+            images={product.images.map((img) => ({ id: img.id, url: img.url }))}
+            productName={product.name}
+            galleryLayout={pageSettings.galleryLayout}
+          />
 
           {/* Info */}
           <div>
