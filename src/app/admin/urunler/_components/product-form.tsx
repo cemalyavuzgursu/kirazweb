@@ -33,6 +33,16 @@ type ProductData = {
   seoTitle: string | null;
   seoDescription: string | null;
   images: string[];
+  variants: VariantRow[];
+};
+
+type VariantRow = {
+  id?: string;
+  name: string;
+  sku: string;
+  price: string; // boş = ürün fiyatı kullanılır
+  stock: number;
+  isActive: boolean;
 };
 
 type Category = { id: string; name: string };
@@ -47,7 +57,18 @@ export function ProductForm({
   brands: string[];
 }) {
   const [images, setImages] = useState<string[]>(product?.images ?? []);
+  const [variants, setVariants] = useState<VariantRow[]>(product?.variants ?? []);
   const [submitting, setSubmitting] = useState(false);
+
+  function addVariant() {
+    setVariants((prev) => [...prev, { name: "", sku: "", price: "", stock: 0, isActive: true }]);
+  }
+  function updateVariant(index: number, patch: Partial<VariantRow>) {
+    setVariants((prev) => prev.map((v, i) => (i === index ? { ...v, ...patch } : v)));
+  }
+  function removeVariant(index: number) {
+    setVariants((prev) => prev.filter((_, i) => i !== index));
+  }
   const [categories, setCategories] = useState<Category[]>(initialCategories);
   const [selectedCategoryId, setSelectedCategoryId] = useState(product?.categoryId ?? "");
   const [showNewCategory, setShowNewCategory] = useState(false);
@@ -86,6 +107,7 @@ export function ProductForm({
     >
       {product?.id ? <input type="hidden" name="id" value={product.id} /> : null}
       <input type="hidden" name="imagesJson" value={JSON.stringify(images)} />
+      <input type="hidden" name="variantsJson" value={JSON.stringify(variants)} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
@@ -130,6 +152,94 @@ export function ProductForm({
             <CardContent>
               <h3 className="font-display text-lg text-ink-700 mb-4">Görseller</h3>
               <ImageUploader value={images} onChange={setImages} multiple max={10} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-display text-lg text-ink-700">Varyantlar</h3>
+                <button
+                  type="button"
+                  onClick={addVariant}
+                  className="inline-flex items-center gap-1 h-8 px-3 rounded-md border border-cream-200 text-sm text-ink-500 hover:border-rose-300 hover:text-rose-600 transition"
+                >
+                  <Plus className="h-4 w-4" /> Varyant Ekle
+                </button>
+              </div>
+              <p className="text-xs text-ink-300">
+                Örn. renk/beden seçenekleri. Boş bırakırsanız ürün varyantsız satılır.
+                Fiyat boşsa ürün fiyatı kullanılır.
+              </p>
+
+              {variants.length === 0 ? (
+                <p className="text-sm text-ink-300 py-2">Henüz varyant eklenmedi.</p>
+              ) : (
+                <div className="space-y-3">
+                  {/* Başlık satırı (geniş ekran) */}
+                  <div className="hidden sm:grid grid-cols-[1fr_120px_90px_90px_auto] gap-2 text-xs text-ink-300 px-1">
+                    <span>Ad (ör. Beyaz / S) *</span>
+                    <span>SKU</span>
+                    <span>Fiyat (₺)</span>
+                    <span>Stok</span>
+                    <span></span>
+                  </div>
+                  {variants.map((v, i) => (
+                    <div
+                      key={v.id ?? `new-${i}`}
+                      className="grid grid-cols-2 sm:grid-cols-[1fr_120px_90px_90px_auto] gap-2 items-center p-2 sm:p-0 rounded-md border sm:border-0 border-cream-200"
+                    >
+                      <Input
+                        value={v.name}
+                        onChange={(e) => updateVariant(i, { name: e.target.value })}
+                        placeholder="Beyaz / S"
+                        className="col-span-2 sm:col-span-1 h-9"
+                      />
+                      <Input
+                        value={v.sku}
+                        onChange={(e) => updateVariant(i, { sku: e.target.value })}
+                        placeholder="SKU"
+                        className="h-9"
+                      />
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={v.price}
+                        onChange={(e) => updateVariant(i, { price: e.target.value })}
+                        placeholder="—"
+                        className="h-9"
+                      />
+                      <Input
+                        type="number"
+                        min="0"
+                        value={v.stock}
+                        onChange={(e) => updateVariant(i, { stock: Number(e.target.value) })}
+                        className="h-9"
+                      />
+                      <div className="flex items-center justify-end gap-2 col-span-2 sm:col-span-1">
+                        <label className="flex items-center gap-1 text-xs text-ink-400" title="Aktif">
+                          <input
+                            type="checkbox"
+                            checked={v.isActive}
+                            onChange={(e) => updateVariant(i, { isActive: e.target.checked })}
+                            className="h-4 w-4 rounded border-cream-300 text-rose-500 focus:ring-rose-300"
+                          />
+                          Aktif
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => removeVariant(i)}
+                          title="Varyantı sil"
+                          className="h-8 w-8 rounded-md border border-cream-200 flex items-center justify-center text-ink-400 hover:border-rose-300 hover:text-rose-600 transition"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
 

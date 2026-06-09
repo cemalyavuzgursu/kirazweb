@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { requireAdmin } from "@/lib/admin-guard";
@@ -6,6 +5,7 @@ import { listImages, listFolders } from "@/lib/upload";
 import { AdminShell, PageHeader } from "@/components/admin/admin-shell";
 import { Card } from "@/components/ui/card";
 import { Folder } from "lucide-react";
+import { MediaGrid } from "./_components/media-grid";
 
 export const dynamic = "force-dynamic";
 
@@ -63,22 +63,7 @@ export default async function MediaPage({
           </div>
         </Card>
       ) : (
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
-          {files.map((f) => (
-            <a
-              key={f.url}
-              href={f.url}
-              target="_blank"
-              rel="noreferrer"
-              className="relative aspect-square rounded-md overflow-hidden bg-cream-100 group"
-            >
-              <Image src={f.url} alt={f.filename} fill sizes="200px" className="object-cover" />
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition">
-                <span className="text-xs text-white">{(f.size / 1024).toFixed(0)} KB</span>
-              </div>
-            </a>
-          ))}
-        </div>
+        <MediaGrid files={files.map((f) => ({ url: f.url, filename: f.filename, size: f.size }))} />
       )}
     </AdminShell>
   );

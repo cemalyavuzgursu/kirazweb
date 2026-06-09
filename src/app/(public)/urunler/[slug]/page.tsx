@@ -6,7 +6,7 @@ import { formatPrice } from "@/lib/utils";
 import { buildMetadata, breadcrumbJsonLd, productJsonLd, JsonLd } from "@/lib/seo";
 import { env } from "@/lib/env";
 import { ProductCard } from "@/components/public/product-card";
-import { AddToCartButton } from "@/components/public/add-to-cart-button";
+import { ProductPurchase } from "@/components/public/product-purchase";
 import { ProductGallery } from "@/components/public/product-gallery";
 import { RichText } from "@/components/public/rich-text";
 import { getProductPageSettings } from "@/server/actions/theme";
@@ -95,6 +95,10 @@ export default async function ProductDetailPage({
 
   const kdvEnabled = Boolean(kdvSettings["kdv_enabled"]);
   const showKdv = kdvEnabled && !product.kdvExempt;
+  // Ürünün kendi KDV oranı (ör. 20 → "20", 18.5 → "18,5")
+  const vatRateLabel = parseFloat(product.vatRate.toString())
+    .toString()
+    .replace(".", ",");
 
   const related = pageSettings.showRelatedProducts
     ? await prisma.product.findMany({
@@ -194,7 +198,9 @@ export default async function ProductDetailPage({
               ) : null}
             </div>
             {showKdv ? (
-              <p className="text-xs mb-4" style={{ color: "var(--kt-muted)" }}>(KDV dahil)</p>
+              <p className="text-xs mb-4" style={{ color: "var(--kt-muted)" }}>
+                %{vatRateLabel} KDV dahildir
+              </p>
             ) : null}
 
             {product.shortDescription ? (
@@ -202,13 +208,19 @@ export default async function ProductDetailPage({
             ) : null}
 
             <div className="flex flex-col gap-3 mb-8">
-              <AddToCartButton
+              <ProductPurchase
                 productId={product.id}
-                inStock={product.stock > 0}
-                price={product.price.toString()}
                 name={product.name}
-                image={product.images[0]?.url ?? null}
                 slug={product.slug}
+                image={product.images[0]?.url ?? null}
+                basePrice={product.price.toString()}
+                baseStock={product.stock}
+                variants={product.variants.map((v) => ({
+                  id: v.id,
+                  name: v.name,
+                  price: v.price?.toString() ?? null,
+                  stock: v.stock,
+                }))}
               />
               <Link
                 href={`/iletisim?urun=${encodeURIComponent(product.name)}`}

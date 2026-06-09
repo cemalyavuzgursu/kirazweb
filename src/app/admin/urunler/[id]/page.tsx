@@ -20,7 +20,10 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
       ? null
       : prisma.product.findUnique({
           where: { id },
-          include: { images: { orderBy: { sortOrder: "asc" } } },
+          include: {
+            images: { orderBy: { sortOrder: "asc" } },
+            variants: { orderBy: { sortOrder: "asc" } },
+          },
         }),
     prisma.category.findMany({
       where: { isActive: true },
@@ -63,6 +66,14 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
           seoTitle: product.seoTitle,
           seoDescription: product.seoDescription,
           images: product.images.map((i) => i.url),
+          variants: product.variants.map((v) => ({
+            id: v.id,
+            name: v.name,
+            sku: v.sku ?? "",
+            price: v.price?.toString() ?? "",
+            stock: v.stock,
+            isActive: v.isActive,
+          })),
         } : undefined}
         categories={categories}
       />
