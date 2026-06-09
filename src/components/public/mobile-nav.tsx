@@ -20,11 +20,16 @@ interface MobileNavProps {
 
 export function MobileNav({ siteName, menuItems, isOpen, onClose }: MobileNavProps) {
   const drawerRef = useRef<HTMLDivElement>(null);
-  const [mounted, setMounted] = useState(false);
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
 
-  // Portal target is only available on the client
+  // Portal target is only available on the client. We render into `.kt-public`
+  // (not document.body) so the drawer inherits the theme CSS variables that are
+  // scoped to that wrapper, while still escaping the header's backdrop-filter
+  // containing block.
   useEffect(() => {
-    setMounted(true);
+    setPortalTarget(
+      document.querySelector<HTMLElement>(".kt-public") ?? document.body,
+    );
   }, []);
 
   // Close on Escape key
@@ -80,7 +85,7 @@ export function MobileNav({ siteName, menuItems, isOpen, onClose }: MobileNavPro
     };
   }, [isOpen]);
 
-  if (!mounted) return null;
+  if (!portalTarget) return null;
 
   return createPortal(
     <>
@@ -178,6 +183,6 @@ export function MobileNav({ siteName, menuItems, isOpen, onClose }: MobileNavPro
         </nav>
       </div>
     </>,
-    document.body,
+    portalTarget,
   );
 }

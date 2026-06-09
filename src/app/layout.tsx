@@ -3,7 +3,29 @@ import { Inter } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
 import { getPublishedThemeSettings, getDraftData } from "@/server/actions/theme";
+import { getSettings } from "@/lib/settings";
 import { buildCssVarString, buildGoogleFontsUrl, DEFAULT_THEME_SETTINGS } from "@/lib/theme-settings";
+
+function faviconType(url: string): string | undefined {
+  const ext = url.split("?")[0].split(".").pop()?.toLowerCase();
+  switch (ext) {
+    case "ico":
+      return "image/x-icon";
+    case "png":
+      return "image/png";
+    case "svg":
+      return "image/svg+xml";
+    case "jpg":
+    case "jpeg":
+      return "image/jpeg";
+    case "gif":
+      return "image/gif";
+    case "webp":
+      return "image/webp";
+    default:
+      return undefined;
+  }
+}
 
 const inter = Inter({
   subsets: ["latin", "latin-ext"],
@@ -39,6 +61,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     customCss: null,
   }));
 
+  const faviconSettings = await getSettings(["site.favicon", "store.favicon"]).catch(
+    () => ({}) as Record<string, unknown>,
+  );
+  const faviconRaw = faviconSettings["site.favicon"] ?? faviconSettings["store.favicon"];
+  const faviconUrl = faviconRaw ? String(faviconRaw).trim() : "";
+
   const fontUrl = buildGoogleFontsUrl(themeSettings.fontBody, themeSettings.fontDisplay);
   // CSS vars contain only color/font values — no user-HTML, safe for style tag
   const cssVars = buildCssVarString(themeSettings);
@@ -48,6 +76,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="tr" className={inter.variable}>
       <head>
+        {faviconUrl && (
+          <link rel="icon" href={faviconUrl} type={faviconType(faviconUrl)} />
+        )}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
