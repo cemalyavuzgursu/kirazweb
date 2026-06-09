@@ -7,7 +7,13 @@ import { deleteImage } from "@/lib/upload";
 
 export async function deleteMediaFile(url: string): Promise<{ ok: boolean; error?: string }> {
   const session = await requireAdmin();
-  if (!url || !url.startsWith("/uploads/")) {
+  // Allowlist the URL shape: must live under /uploads/ with a safe charset and
+  // no traversal sequences. deleteImage applies a second resolved-path check.
+  if (
+    !url ||
+    !/^\/uploads\/[A-Za-z0-9._\-/]+$/.test(url) ||
+    url.includes("..")
+  ) {
     return { ok: false, error: "Geçersiz dosya." };
   }
   await deleteImage(url);

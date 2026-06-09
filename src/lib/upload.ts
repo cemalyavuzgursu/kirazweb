@@ -110,9 +110,13 @@ export async function deleteImage(url: string): Promise<void> {
   if (!url.startsWith("/uploads/")) return;
   // Strip leading /uploads/
   const rel = url.slice("/uploads/".length);
-  const filepath = path.join(UPLOAD_DIR, rel);
-  // Ensure we stay within UPLOAD_DIR (no traversal)
-  if (!filepath.startsWith(UPLOAD_DIR)) return;
+  // Reject any traversal sequences or backslashes outright
+  if (rel.includes("..") || rel.includes("\\")) return;
+  const root = path.resolve(UPLOAD_DIR);
+  const filepath = path.resolve(root, rel);
+  // Ensure the resolved path stays strictly within UPLOAD_DIR. Comparing with a
+  // trailing path.sep prevents sibling-directory bypasses (e.g. /uploads-evil).
+  if (filepath !== root && !filepath.startsWith(root + path.sep)) return;
   try {
     await fs.unlink(filepath);
   } catch {
