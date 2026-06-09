@@ -30,7 +30,10 @@ export function HeroBanner({ slides }: { slides: BannerSlide[] }) {
 
   return (
     <section className="relative w-full overflow-hidden">
-      <div className="relative aspect-[16/9] sm:aspect-[2.4/1] max-h-[640px]">
+      {/* Height is driven directly (not via aspect-ratio) so that capping it with
+          max-height never shrinks the width — keeps the banner full-bleed and the
+          image object-cover always fills it. 56.25vw = 16/9, 41.6667vw = 2.4/1. */}
+      <div className="relative w-full h-[56.25vw] sm:h-[41.6667vw] max-h-[640px]">
         {slides.map((slide, i) => (
           <div
             key={slide.id}
