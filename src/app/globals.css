@@ -70,6 +70,11 @@
   .kt-public {
     background-color: var(--kt-bg, var(--color-cream-50));
     color: var(--kt-text, var(--color-ink-900));
+    /* Clip any stray horizontal overflow so the page can't scroll sideways and
+       full-bleed sections (hero banner) stay viewport-width and reflow on resize.
+       `clip` (not `hidden`) avoids creating a scroll container that would break
+       the sticky header. */
+    overflow-x: clip;
   }
 
   /* ── Public headings use display font vars ────────────────────────────── */
