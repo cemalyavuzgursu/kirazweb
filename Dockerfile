@@ -1,5 +1,5 @@
 FROM node:22-alpine AS base
-RUN apk add --no-cache libc6-compat openssl
+RUN apk add --no-cache libc6-compat openssl su-exec
 WORKDIR /app
 
 # --- Dependencies ---
@@ -34,10 +34,12 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/start.sh ./start.sh
 
 RUN mkdir -p /app/public/uploads && chown -R nextjs:nodejs /app/public/uploads
+RUN chmod +x ./start.sh
 
-USER nextjs
+# Start as root so start.sh can fix ownership of the mounted upload volume,
+# then it drops to the unprivileged `nextjs` user via su-exec before serving.
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node node_modules/.bin/next start"]
+CMD ["sh", "./start.sh"]

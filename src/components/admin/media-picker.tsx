@@ -68,7 +68,11 @@ export function MediaPicker({ value, onChange, folder: defaultFolder = "", trigg
         fd.append("file", file);
         fd.append("folder", currentFolder);
         const res = await fetch("/api/upload", { method: "POST", body: fd });
-        if (!res.ok) continue;
+        if (!res.ok) {
+          const data = await res.json().catch(() => null) as { error?: string } | null;
+          alert(`"${file.name}" yüklenemedi: ${data?.error ?? res.statusText}`);
+          continue;
+        }
         const data = await res.json() as { url: string };
         setSelected(data.url);
       }
