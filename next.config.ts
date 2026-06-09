@@ -13,6 +13,17 @@ const config: NextConfig = {
   experimental: {
     serverActions: { bodySizeLimit: "10mb" },
   },
+  async rewrites() {
+    // Serve runtime-uploaded files through a route handler instead of relying on
+    // Next's static `public/` serving, which only exposes build-time files in
+    // production (`next start`). Runs in `beforeFiles` so it takes precedence
+    // over the static file check. Stored URLs remain `/uploads/...`.
+    return {
+      beforeFiles: [
+        { source: "/uploads/:path*", destination: "/api/uploads/:path*" },
+      ],
+    };
+  },
   async headers() {
     const csp = [
       "default-src 'self'",

@@ -3,7 +3,9 @@ import fs from "node:fs/promises";
 import crypto from "node:crypto";
 import sharp from "sharp";
 
-const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
+// On platforms with an ephemeral filesystem (e.g. Railway) set UPLOAD_DIR to a
+// mounted volume path like /data/uploads so files persist across deploys.
+const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(process.cwd(), "public", "uploads");
 const MAX_SIZE = 8 * 1024 * 1024; // 8 MB
 const ALLOWED_MIMES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
 
